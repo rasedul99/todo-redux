@@ -80,5 +80,4 @@ const todosSlice = createSlice({
   },
 });
 
-// export const {deleteTodo, toggleComplete} = todosSlice.actions
 export default todosSlice.reducer;
