@@ -4,24 +4,17 @@ import { Button, Input } from "@/components/ui";
 import { useEffect, useState } from "react";
 import Card from "@/components/global/Card";
 import { BASE_URL, initialTodos } from "@/constants";
-import { useAppSelector } from "@/lib/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { fetchTodos } from "@/lib/store/features/todos/todoSlice";
 
 const Home = ()=> {
   const [input, setInput] = useState("");
-  const todos = useAppSelector((state) => state.todos);
+  const {isLoading, todos, error } = useAppSelector((state) => state.todos);
+  const dispatch = useAppDispatch()
 
-  // useEffect(()=>{
-  //   const fetchTodos = async () => {
-  //     try {
-  //       const response = await fetch(`${BASE_URL}/todos`);
-  //       const todosData = await response.json();
-  //       setTodos(todosData);
-  //     } catch (error) {
-  //       setError(error);
-  //     }
-  //   };
-  //   fetchTodos() 
-  // },[])
+  useEffect(()=>{
+    dispatch(fetchTodos())
+  },[dispatch])
 
   return (
     <div className="max-w-96 mx-auto p-4 my-20 flex flex-col gap-4 bg-slate-300 rounded">
@@ -32,9 +25,17 @@ const Home = ()=> {
       </div>
       <div className="flex flex-col gap-4">
         {
-          todos?.map((todo)=>(
-           <Card key={todo.id} todo={todo}/>
-          ))
+          isLoading && <p className="text-sm leading-20 text-center">Loading</p> 
+        }
+        {
+          !isLoading && todos.length > 0 && (
+            todos.map((todo)=>(
+              <Card key={todo.id} todo={todo}/>
+             ))
+          )
+        }
+        {
+          error && <p className="text-sm leading-20 text-center">Something went wrong, Please try again.</p>
         }
       </div>
     </div>
