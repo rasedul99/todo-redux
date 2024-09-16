@@ -1,15 +1,29 @@
 import { Delete, Edit } from "@/components/icons";
 import { Checkbox } from "@/components/ui";
+import { BASE_URL } from "@/constants";
 import { cn } from "@/lib/utils";
 
 const Card = ({ todo, setTodos }) => {
   const { id, title, completed } = todo;
 
-  const handleToggleComplete = (id) => {
-    setTodos((prev) => prev.map((todo) => todo.id !== id ? todo : {...todo, completed:!todo.completed} ))
+  const handleToggleComplete = async(id) => {
+    try {
+     const response = await fetch(`${BASE_URL}/todos/${id}`,{ method:"PATCH", body:JSON.stringify({completed:!completed}) })
+     const data = await response.json()
+     setTodos((prev) => prev.map((todo) => todo.id !== id ? todo : data ))
+      
+    } catch (error) {
+      
+    }
   }
-  const handleDelete = (id) => {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
+  const handleDelete = async(id) => {
+    try {
+      await fetch(`${BASE_URL}/todos/${id}`,{ method:"DELETE" })
+      setTodos((prev) => prev.filter((todo) => todo.id !== id))
+     
+    } catch (error) {
+      
+    }
   };
 
   return (
