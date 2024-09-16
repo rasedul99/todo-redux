@@ -17,9 +17,12 @@ export const deleteTodo = createAsyncThunk("todos/deleteTodo", async (id) => {
 export const toggleComplete = createAsyncThunk(
   "todos/toggleComplete",
   async (todo) => {
+    const bodyData = {
+      ...todo,completed:!todo.completed
+    } 
     const response = await fetch(`${BASE_URL}/todos/${todo.id}`, {
       method: "PATCH",
-      body: JSON.stringify(todo),
+      body: JSON.stringify(bodyData),
     });
     const data = response.json()
     return data
@@ -69,7 +72,7 @@ const todosSlice = createSlice({
     // }),
     builder.addCase(toggleComplete.fulfilled, (state, action)=>{
       state.isLoading = false
-      state.todos = state.todos.map(todo => todo.id !== action.payload.id ? todo : {...action.payload, completed:!action.payload.completed})
+      state.todos = state.todos.map(todo => todo.id !== action.payload.id ? todo : action.payload)
     })
     builder.addCase(toggleComplete.rejected, (state,payload)=> {
     state.error = payload.error.message
