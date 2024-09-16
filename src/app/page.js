@@ -3,27 +3,25 @@
 import { Button, Input } from "@/components/ui";
 import { useEffect, useState } from "react";
 import Card from "@/components/global/Card";
-import { BASE_URL } from "@/constants";
+import { BASE_URL, initialTodos } from "@/constants";
+import { useAppSelector } from "@/lib/store/hooks";
 
 const Home = ()=> {
-  const [todos, setTodos] = useState(null);
   const [input, setInput] = useState("");
-  const [error, setError] = useState(null);
+  const todos = useAppSelector((state) => state.todos);
 
-  useEffect(()=>{
-    const fetchTodos = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/todos`);
-        const todosData = await response.json();
-        setTodos(todosData);
-      } catch (error) {
-        setError(error);
-      }
-    };
-    fetchTodos() 
-  },[])
-
-  console.log({todos})
+  // useEffect(()=>{
+  //   const fetchTodos = async () => {
+  //     try {
+  //       const response = await fetch(`${BASE_URL}/todos`);
+  //       const todosData = await response.json();
+  //       setTodos(todosData);
+  //     } catch (error) {
+  //       setError(error);
+  //     }
+  //   };
+  //   fetchTodos() 
+  // },[])
 
   return (
     <div className="max-w-96 mx-auto p-4 my-20 flex flex-col gap-4 bg-slate-300 rounded">
@@ -35,7 +33,7 @@ const Home = ()=> {
       <div className="flex flex-col gap-4">
         {
           todos?.map((todo)=>(
-           <Card key={todo.id} todo={todo} setTodos={setTodos}/>
+           <Card key={todo.id} todo={todo}/>
           ))
         }
       </div>
