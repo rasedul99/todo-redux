@@ -1,83 +1,41 @@
 import { BASE_URL } from "@/constants";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export const fetchTodos = createAsyncThunk("todos/fetchTodos", async () => {
-  const res = await fetch(`${BASE_URL}/todos`);
-  const data = await res.json();
-  return data;
+const todoApiSlice = createApi({
+  reducerPath: "todos",
+  baseQuery: fetchBaseQuery({ baseUrl: BASE_URL }),
+  tagTypes: ["todos"],
+  endpoints: (builder) => ({
+    getTodos: builder.query({
+      query: () => "/todos",
+      providesTags: ["todos"],
+    }),
+    createTodo: builder.mutation({
+      query: (data) => ({ method: "POST", url: "/todos", body: data }),
+      invalidatesTags: ["todos"],
+    }),
+    toggleTodo: builder.mutation({
+      query: ({ id, ...rest }) => ({
+        method: "PATCH",
+        url: `/todos/${id}`,
+        body: {
+          id,
+          ...rest,
+        },
+      }),
+      invalidatesTags: ["todos"],
+    }),
+    deleteTodo: builder.mutation({
+      query: (id) => ({ method: "DELETE", url: `/todos/${id}` }),
+      invalidatesTags: ["todos"],
+    }),
+  }),
 });
 
-export const deleteTodo = createAsyncThunk("todos/deleteTodo", async (id) => {
-  await fetch(`${BASE_URL}/todos/${id}`, {
-    method: "DELETE",
-  });
-  return id;
-});
-
-export const toggleComplete = createAsyncThunk(
-  "todos/toggleComplete",
-  async (todo) => {
-    const bodyData = {
-      ...todo,completed:!todo.completed
-    } 
-    const response = await fetch(`${BASE_URL}/todos/${todo.id}`, {
-      method: "PATCH",
-      body: JSON.stringify(bodyData),
-    });
-    const data = response.json()
-    return data
-  }
-);
-
-const todosSlice = createSlice({
-  name: "todos",
-  initialState: {
-    isLoading: false,
-    todos: [],
-    error: null,
-  },
-  extraReducers: (builder) => {
-    // fetchTodos pending, fulfilled, rejected
-    builder.addCase(fetchTodos.pending, (state) => {
-      state.isLoading = true;
-    });
-    builder.addCase(fetchTodos.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.todos = action.payload;
-      state.error = null;
-    });
-    builder.addCase(fetchTodos.rejected, (state, action) => {
-      state.isLoading = false;
-      state.todos = [];
-      state.error = action.error.message;
-    });
-
-    // deleteTodo
-    builder.addCase(deleteTodo.pending, (state) => {
-      state.isLoading = true;
-    });
-    builder.addCase(deleteTodo.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.todos = state.todos.filter((todo) => todo.id !== action.payload);
-      state.error = null;
-    });
-    builder.addCase(deleteTodo.rejected, (state, action) => {
-      state.isLoading = false;
-      state.error = action.error.message;
-    });
-
-    // toggleComplete
-    // builder.addCase(toggleComplete.pending, (state)=> {
-    //   state.isLoading = true
-    // }),
-    builder.addCase(toggleComplete.fulfilled, (state, action)=>{
-      state.isLoading = false
-      state.todos = state.todos.map(todo => todo.id !== action.payload.id ? todo : action.payload)
-    })
-    builder.addCase(toggleComplete.rejected, (state,payload)=> {
-    state.error = payload.error.message
-    })
-  },
-});
-
-export default todosSlice.reducer;
+export const {
+  useGetTodosQuery,
+  useCreateTodoMutation,
+  useDeleteTodoMutation,
+  useToggleTodoMutation,
+} = todoApiSlice;
+export default todoApiSlice;

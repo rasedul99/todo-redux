@@ -1,17 +1,28 @@
 import { Delete, Edit } from "@/components/icons";
 import { Checkbox } from "@/components/ui";
-import { deleteTodo, toggleComplete } from "@/lib/store/features/todos/todoSlice";
-import { useAppDispatch } from "@/lib/store/hooks";
+import {
+  useDeleteTodoMutation,
+  useToggleTodoMutation,
+} from "@/lib/store/features/todos/todoSlice";
 import { cn } from "@/lib/utils";
 
-const Card = ({ todo}) => {
+const Card = ({ todo }) => {
   const { id, title, completed } = todo;
 
-  const dispatch = useAppDispatch();
+  const [deleteTodo] = useDeleteTodoMutation();
+  const [toggleComplete] = useToggleTodoMutation();
+
+  const handleDelete = () => {
+    deleteTodo(id);
+  };
   return (
     <div key={id} className="flex justify-between items-center gap-1">
       <div className="grow flex items-center gap-2">
-        <Checkbox id={id} checked={completed} onClick = {()=> dispatch(toggleComplete({id,title,completed}))}/>
+        <Checkbox
+          id={id}
+          checked={completed}
+          onClick={() => toggleComplete({ id, title, completed: !completed })}
+        />
         <label
           htmlFor={id}
           className={cn(
@@ -25,7 +36,7 @@ const Card = ({ todo}) => {
       <Edit className="size-5 cursor-pointer hover:text-red-600" />
       <Delete
         className="size-5 cursor-pointer hover:text-red-600"
-        onClick={() => dispatch(deleteTodo(id))}
+        onClick={handleDelete}
       />
     </div>
   );
